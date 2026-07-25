@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Especialista de Rescisão — Assistente Inteligente para rescisão CLT. Cálculo de TRCT, multa FGTS, aviso prévio proporcional e validação do eSocial S-2299.">
+<meta name="robots" content="index, follow">
+<title>Especialista de Rescisão · IA para Departamento Pessoal</title>
+<style>
+/* ══════════════════════════════════════
+   RESET & VARIÁVEIS
+   Idêntico ao Design System da Home
+   ══════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08080C;--surface:#111118;--surface2:#1A1A26;
+  --orange:#ED7D31;--orange-d:#C96B24;
+  --teal:#0F766E;--teal-light:#4adeaf;
+  --white:#FFFFFF;--muted:#8899BB;
+  --border:rgba(136,153,187,.14);--border2:rgba(136,153,187,.28);
+  --radius:8px;--radius-lg:12px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.6;overflow-x:hidden}
+h1,h2,h3{font-weight:500;line-height:1.2;letter-spacing:-.02em}
+
+/* ══════════════════════════════════════
+   NAV
+   ══════════════════════════════════════ */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:.875rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:.5px solid transparent;transition:background .3s,backdrop-filter .3s,border-color .3s}
+nav.scrolled{background:rgba(8,8,12,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom-color:var(--border)}
+.nav-logo{font-size:14px;font-weight:500;text-decoration:none;color:var(--white)}.nav-logo span{color:var(--orange)}
+.nav-right{display:flex;gap:10px;align-items:center}
+.btn-ghost{background:none;border:.5px solid var(--border2);color:var(--muted);padding:.4rem 1rem;border-radius:var(--radius);cursor:pointer;font-size:13px;font-family:inherit;transition:color .15s,border-color .15s}
+.btn-ghost:hover{color:var(--white);border-color:var(--orange)}
+.btn-cta{background:var(--orange);color:var(--white);border:none;padding:.4rem 1.1rem;border-radius:var(--radius);cursor:pointer;font-size:13px;font-weight:500;font-family:inherit;transition:background .15s;position:relative;overflow:hidden}
+.btn-cta:hover{background:var(--orange-d)}
+.btn-cta::after{content:'';position:absolute;inset:0 auto 0 -100%;width:60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);animation:shim 5s 2s infinite}
+@keyframes shim{0%{left:-100%}100%{left:200%}}
+
+/* ══════════════════════════════════════
+   HERO
+   ══════════════════════════════════════ */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7rem 1.5rem 4rem;position:relative}
+.hero-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:.875rem}
+.hero-title{font-size:clamp(32px,8vw,58px);font-weight:500;text-align:center;line-height:1.1;margin-bottom:.625rem}
+.hero-title span{color:var(--orange)}
+.hero-sub{font-size:14px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:1.75rem}
+
+/* Live Session Box */
+.live-box{width:100%;max-width:620px}
+.live-shell{background:#0D0D14;border:.5px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden}
+.live-bar{background:var(--surface2);padding:.55rem 1rem;display:flex;align-items:center;gap:7px}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.dot-r{background:#FF5F56}.dot-y{background:#FFBD2E}.dot-g{background:#27C93F}
+.live-status{font-size:11px;color:var(--muted);margin-left:auto;font-family:'Courier New',monospace}
+.live-body{padding:1.25rem 1.5rem;min-height:206px;font-family:'Courier New',monospace;font-size:13px}
+
+/* Tag do especialista */
+.ls-tag{display:inline-flex;align-items:center;font-size:11px;font-family:'Segoe UI',system-ui,sans-serif;font-weight:600;letter-spacing:.05em;padding:3px 10px;border-radius:20px;margin-bottom:.875rem;background:rgba(237,125,49,.12);border:.5px solid rgba(237,125,49,.3);color:var(--orange);opacity:0;transform:scale(.96);transition:opacity .3s ease-out,transform .3s ease-out}
+.ls-tag.show{opacity:1;transform:scale(1)}
+.ls-phase{font-size:10px;margin-left:6px;opacity:.7;font-weight:400}
+
+/* Campos */
+.ls-fields{display:flex;flex-direction:column;margin-bottom:.875rem}
+.ls-field{display:flex;align-items:center;padding:.3rem 0;border-bottom:.5px solid rgba(136,153,187,.07);opacity:0;transform:translateY(3px);transition:opacity .2s ease-out,transform .2s ease-out}
+.ls-field:last-child{border:none}
+.ls-field.show{opacity:1;transform:none}
+.ls-fl{color:var(--muted);font-size:12px;min-width:140px;flex-shrink:0}
+.ls-fv{color:var(--white);font-size:13px}
+.ls-cur{display:inline-block;width:1px;height:.9em;background:var(--orange);margin-left:1px;vertical-align:middle;opacity:0}
+.ls-cur.blink{opacity:1;animation:cur-blink .9s step-end infinite}
+@keyframes cur-blink{50%{opacity:0}}
+.ls-ck{margin-left:6px;color:var(--teal-light);font-size:11px;opacity:0;transform:scale(.5);transition:opacity .15s,transform .15s}
+.ls-ck.show{opacity:1;transform:scale(1)}
+
+/* Separador */
+.ls-sep{height:.5px;background:rgba(136,153,187,.12);margin:.5rem 0 .75rem;opacity:0;transform:scaleX(0);transform-origin:left;transition:opacity .25s,transform .35s ease-out}
+.ls-sep.show{opacity:1;transform:scaleX(1)}
+
+/* Progresso */
+.ls-prog{margin-bottom:.875rem;opacity:0;transition:opacity .2s}
+.ls-prog.show{opacity:1}
+.ls-prog-txt{font-size:11px;color:var(--muted);margin-bottom:.35rem}
+.ls-prog-track{height:2px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.ls-pfill{height:2px;width:0;border-radius:2px;background:var(--orange);transition:width .6s cubic-bezier(.4,0,.2,1)}
+
+/* Resultados */
+.ls-results{display:flex;flex-direction:column;gap:3px;margin-bottom:.75rem}
+.ls-rrow{display:flex;align-items:center;gap:.5rem;font-size:12px;opacity:0;transform:translateY(4px);transition:opacity .2s ease-out,transform .2s ease-out}
+.ls-rrow.show{opacity:1;transform:none}
+.ls-rok{color:var(--teal-light);font-size:11px;flex-shrink:0}
+.ls-rl{color:var(--muted);flex:1}
+.ls-rv{color:var(--white)}
+.ls-rref{font-size:10px;color:rgba(136,153,187,.45);margin-left:5px;white-space:nowrap}
+
+/* Total */
+.ls-total{display:flex;align-items:center;justify-content:space-between;padding:.625rem .75rem;background:rgba(255,255,255,.03);border:.5px solid var(--border);border-radius:var(--radius);opacity:0;transform:scale(.98);transition:opacity .3s ease-out,transform .3s ease-out}
+.ls-total.show{opacity:1;transform:scale(1)}
+.ls-tl{font-size:12px;color:var(--muted)}
+.ls-tv{font-size:14px;font-weight:600;color:var(--white)}
+
+/* CTA do Hero */
+.hero-cta-wrap{display:flex;flex-direction:column;align-items:center;margin-top:1.5rem;width:100%;max-width:620px}
+.hero-cta-btn{width:100%;max-width:400px;background:var(--orange);color:var(--white);border:none;padding:.875rem;border-radius:var(--radius);font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;transition:background .15s;position:relative;overflow:hidden}
+.hero-cta-btn:hover{background:var(--orange-d)}
+.hero-cta-btn::after{content:'';position:absolute;inset:0 auto 0 -100%;width:60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);animation:shim 5s 1.5s infinite}
+.hero-gua{font-size:12px;color:rgba(136,153,187,.6);margin-top:.625rem;text-align:center}
+.hero-brand{font-size:clamp(16px,2.5vw,22px);font-weight:400;color:var(--white);text-align:center;margin-bottom:.25rem;letter-spacing:-.01em}
+
+/* ══════════════════════════════════════
+   STICKY CTA — exclusivo mobile
+   ══════════════════════════════════════ */
+.sticky-cta{position:fixed;bottom:0;left:0;right:0;z-index:90;background:var(--orange);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;transform:translateY(100%);transition:transform .28s ease-out;border-top:1px solid var(--orange-d)}
+.sticky-cta.visible{transform:none}
+.sticky-info{display:flex;flex-direction:column;gap:1px}
+.sticky-label{font-size:11px;color:rgba(255,255,255,.75)}
+.sticky-price{font-size:15px;font-weight:600;color:var(--white)}
+.sticky-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:var(--white);padding:.5rem 1.25rem;border-radius:var(--radius);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s}
+.sticky-btn:hover{background:rgba(255,255,255,.28)}
+@media(min-width:768px){.sticky-cta{display:none}}
+
+/* ══════════════════════════════════════
+   SEÇÕES BASE
+   ══════════════════════════════════════ */
+section{padding:4.5rem 1.5rem}
+.container{max-width:960px;margin:0 auto}
+.sec-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem}
+.sec-title{font-size:clamp(21px,3.5vw,30px);font-weight:500;line-height:1.25;margin-bottom:1.25rem}
+.fade-up{opacity:0;transform:translateY(16px);transition:opacity .5s ease-out,transform .5s ease-out}
+.fade-up.vis{opacity:1;transform:none}
+
+/* ══════════════════════════════════════
+   DORES
+   ══════════════════════════════════════ */
+.dores-s{background:#0A0A12}
+.dores-grid{display:grid;grid-template-columns:1fr;gap:.75rem;margin-top:1.5rem}
+@media(min-width:640px){.dores-grid{grid-template-columns:repeat(3,1fr);gap:1.25rem}}
+.dor-item{padding:.875rem 0 .875rem 1.25rem;border-left:2px solid rgba(237,125,49,.3)}
+.dor-title{font-size:15px;font-weight:500;color:var(--white);margin-bottom:.375rem}
+.dor-desc{font-size:13px;color:var(--muted);line-height:1.65}
+
+/* ══════════════════════════════════════
+   DEMONSTRAÇÃO
+   ══════════════════════════════════════ */
+.demo-s{background:#09090F}
+.terminal{background:#0D0D14;border:.5px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden;margin-top:1.25rem}
+.term-bar{background:var(--surface2);padding:.6rem 1rem;display:flex;align-items:center;gap:8px}
+.term-title{font-size:11px;color:var(--muted);margin-left:auto;font-family:'Courier New',monospace}
+.term-body{padding:1.25rem 1.5rem;font-family:'Courier New',monospace;font-size:13px;line-height:1.85;overflow-x:auto}
+.t-cmd{color:var(--orange)}.t-ok{color:var(--teal-light)}
+.t-ref{color:var(--muted);font-size:12px}
+.t-sep{color:rgba(136,153,187,.35);font-size:11px}
+.t-dim{color:rgba(136,153,187,.5)}
+.cursor{display:inline-block;width:2px;height:1em;background:var(--orange);vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+
+/* ══════════════════════════════════════
+   FERRAMENTAS
+   ══════════════════════════════════════ */
+.tools-s{background:#0A0A12}
+.tools-grid{display:grid;grid-template-columns:1fr;gap:.75rem;margin-top:1.25rem}
+@media(min-width:640px){.tools-grid{grid-template-columns:repeat(3,1fr);gap:1rem}}
+.tool-card{background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;transition:border-color .2s}
+.tool-card:hover{border-color:rgba(237,125,49,.25)}
+.tool-name{font-size:14px;font-weight:500;color:var(--white);margin-bottom:.375rem}
+.tool-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:.625rem}
+.tool-ref{font-size:11px;color:rgba(136,153,187,.45);font-family:'Courier New',monospace}
+
+/* ══════════════════════════════════════
+   O QUE ACOMPANHA
+   ══════════════════════════════════════ */
+.inclui-s{background:var(--bg)}
+.inclui-list{display:grid;grid-template-columns:1fr;gap:0;margin-top:1.25rem}
+@media(min-width:640px){.inclui-list{grid-template-columns:1fr 1fr}}
+.inclui-item{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem 0;border-bottom:.5px solid var(--border)}
+@media(min-width:640px){
+  .inclui-item:nth-child(odd):last-child{border-bottom:.5px solid var(--border)}
+  .inclui-item:nth-last-child(-n+2){border-bottom:none}
+}
+.inclui-ck{color:var(--teal-light);font-size:13px;flex-shrink:0;margin-top:2px}
+.inclui-txt{font-size:14px;color:var(--white)}
+.inclui-sub{font-size:12px;color:var(--muted);margin-top:1px;line-height:1.5}
+
+/* ══════════════════════════════════════
+   FAQ
+   ══════════════════════════════════════ */
+.faq-s{background:#0A0A12}
+.faq-item{border-bottom:.5px solid var(--border)}
+.faq-q{width:100%;background:none;border:none;color:var(--white);font-size:14px;padding:1.125rem 0;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem;line-height:1.4;font-family:inherit}
+.faq-icon{width:20px;height:20px;border:.5px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:16px;flex-shrink:0;transition:transform .3s,border-color .2s}
+.faq-item.open .faq-icon{transform:rotate(45deg);border-color:var(--orange)}
+.faq-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease-out}
+.faq-item.open .faq-wrap{grid-template-rows:1fr}
+.faq-inner{overflow:hidden}
+.faq-a{font-size:13px;color:var(--muted);line-height:1.7;padding-bottom:1.125rem}
+
+/* ══════════════════════════════════════
+   PREÇO
+   ══════════════════════════════════════ */
+.price-s{background:#09090F}
+.price-box{max-width:420px;margin:1.25rem auto 0;background:rgba(17,17,24,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:.5px solid var(--border2);border-radius:16px;padding:2rem}
+.p-de{font-size:26px;color:rgba(136,153,187,.45);text-decoration:line-through;margin-bottom:.25rem;font-weight:400;letter-spacing:-.01em}
+.p-parcela{font-size:13px;color:var(--teal-light);margin-bottom:.25rem;margin-top:.25rem}
+.p-badge{display:inline-flex;font-size:11px;padding:3px 10px;background:rgba(237,125,49,.12);border:.5px solid rgba(237,125,49,.28);border-radius:20px;color:var(--orange);margin-bottom:1rem;letter-spacing:.04em}
+.p-name{font-size:13px;color:var(--muted);margin-bottom:.375rem}
+.p-caps{font-size:14px;color:rgba(255,255,255,.65);line-height:1.6;margin-bottom:1.25rem}
+.p-inc{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.5rem;padding:.875rem;background:rgba(255,255,255,.025);border:.5px solid var(--border);border-radius:var(--radius)}
+.p-inc-row{display:flex;align-items:center;gap:.5rem;font-size:13px;color:rgba(255,255,255,.7)}
+.p-inc-ok{color:var(--teal-light);font-size:11px;flex-shrink:0}
+.p-numrow{display:flex;align-items:baseline;gap:10px;margin-bottom:.375rem}
+.p-num{font-size:clamp(42px,6vw,56px);font-weight:500;line-height:1}
+.p-launch{font-size:11px;padding:3px 9px;background:rgba(237,125,49,.15);color:var(--orange);border:.5px solid rgba(237,125,49,.28);border-radius:20px}
+.p-type{font-size:13px;color:var(--muted);margin-bottom:1.5rem}
+.price-cta{width:100%;background:var(--orange);color:var(--white);border:none;padding:.875rem;border-radius:var(--radius);font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;transition:background .15s;position:relative;overflow:hidden;margin-bottom:1rem}
+.price-cta:hover{background:var(--orange-d)}
+.price-cta::after{content:'';position:absolute;inset:0 auto 0 -100%;width:60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);animation:shim 5s 1s infinite}
+.p-gua{font-size:12px;color:var(--teal);text-align:center}
+
+/* ══════════════════════════════════════
+   CTA FINAL
+   ══════════════════════════════════════ */
+.cta-final{background:var(--bg);text-align:center;padding:5.5rem 1.5rem}
+.cf-title{font-size:clamp(24px,4.5vw,36px);font-weight:500;margin-bottom:.875rem;line-height:1.2}
+.cf-sub{font-size:14px;color:var(--muted);margin-bottom:2rem;max-width:380px;margin-left:auto;margin-right:auto;line-height:1.6}
+.cf-btn{background:var(--orange);color:var(--white);border:none;padding:.875rem 2.5rem;border-radius:var(--radius);font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;transition:background .15s;position:relative;overflow:hidden;width:100%;max-width:360px}
+.cf-btn:hover{background:var(--orange-d)}
+.cf-btn::after{content:'';position:absolute;inset:0 auto 0 -100%;width:60%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);animation:shim 5s 3s infinite}
+.cf-gua{font-size:12px;color:var(--muted);margin-top:1.25rem}
+.cf-gua strong{color:var(--teal);font-weight:400}
+
+/* ══════════════════════════════════════
+   RODAPÉ
+   ══════════════════════════════════════ */
+footer{background:#06060A;border-top:.5px solid var(--border);padding:2.5rem 1.5rem;text-align:center}
+footer p{font-size:12px;color:var(--muted)}
+footer a{color:var(--muted);text-decoration:none;transition:color .15s}
+footer a:hover{color:var(--white)}
+.footer-divider{width:24px;height:.5px;background:var(--border);margin:.875rem auto}
+.footer-platform{font-size:11px;color:rgba(136,153,187,.35);margin-top:.375rem}
+
+/* ══════════════════════════════════════
+   RESPONSIVIDADE
+   ══════════════════════════════════════ */
+@media(max-width:480px){
+  nav{padding:.75rem 1rem}
+  .btn-ghost{display:none}
+  .ls-fl{min-width:110px;font-size:11px}
+  .live-body{padding:1rem 1.125rem;font-size:12px}
+  .term-body{font-size:12px;padding:1rem 1.125rem}
+  section{padding:3.5rem 1.25rem}
+  .price-box{padding:1.5rem}
+}
+@media(max-width:360px){
+  .hero-title{font-size:28px}
+  .live-body{font-size:11px}
+  .ls-fl{min-width:90px}
+}
+
+/* ══════════════════════════════════════
+   ACESSIBILIDADE
+   ══════════════════════════════════════ */
+:focus-visible{outline:2px solid var(--orange);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav" role="navigation" aria-label="Navegação principal">
+  <a class="nav-logo" href="../../01 - Home/home_v1.0.html">IA para Departamento <span>Pessoal</span></a>
+  <div class="nav-right">
+    <button class="btn-ghost" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">Ver demonstração ↓</button>
+    <button class="btn-cta" onclick="window.open('https://pay.hotmart.com/D106863518R','_blank')">Adquirir — R$ 97 →</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero" aria-label="Especialista em Rescisão · IA para Departamento Pessoal">
+
+  <div class="hero-brand">IA para Departamento Pessoal</div>
+  <div class="hero-label">Especialista em Rescisão</div>
+  <h1 class="hero-title">Rescisão<br>sem <span>erros.</span></h1>
+  <p class="hero-sub">Do cálculo das verbas ao S-2299.</p>
+
+  <div class="live-box">
+    <div class="live-shell">
+      <div class="live-bar" role="status">
+        <div class="dot dot-r" aria-hidden="true"></div>
+        <div class="dot dot-y" aria-hidden="true"></div>
+        <div class="dot dot-g" aria-hidden="true"></div>
+        <div class="live-status" id="live-status" aria-live="polite">Sessão ativa</div>
+      </div>
+      <div class="live-body" id="live-body" aria-label="Sessão de rescisão em andamento" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="hero-cta-wrap">
+    <button class="hero-cta-btn" id="hero-cta" onclick="window.open('https://pay.hotmart.com/D106863518R','_blank')">
+      Adquirir Especialista — R$ 97 →
+    </button>
+    <p class="hero-gua">✔ Garantia incondicional de 7 dias</p>
+  </div>
+
+</section>
+
+<!-- STICKY CTA — mobile only -->
+<div class="sticky-cta" id="sticky-cta" role="complementary" aria-label="Adquirir Especialista em Rescisão">
+  <div class="sticky-info">
+    <div class="sticky-label">Especialista de Rescisão</div>
+    <div class="sticky-price">R$ 97</div>
+  </div>
+  <button class="sticky-btn" onclick="window.open('https://pay.hotmart.com/D106863518R','_blank')">Adquirir →</button>
+</div>
+
+<!-- DORES -->
+<section class="dores-s fade-up" id="dores" aria-label="Problemas que o Especialista resolve">
+  <div class="container">
+    <div class="sec-label">Rescisão errada custa caro.</div>
+    <div class="dores-grid">
+
+      <div class="dor-item">
+        <div class="dor-title">Verba calculada errada.</div>
+        <div class="dor-desc">Aviso prévio proporcional calculado em 30 dias quando deveria ser 33. A diferença foi paga a mais — e o escritório que arcou com o passivo.</div>
+      </div>
+
+      <div class="dor-item">
+        <div class="dor-title">Multa FGTS incorreta.</div>
+        <div class="dor-desc">A multa de 40% aplicada sobre saldo errado. O trabalhador recebeu menos do que tinha direito. Risco real de ação trabalhista.</div>
+      </div>
+
+      <div class="dor-item">
+        <div class="dor-title">S-2299 devolvido.</div>
+        <div class="dor-desc">Motivo de desligamento preenchido incorretamente. Evento rejeitado, prazo perdido, retrabalho total — e o empregador sem baixa no eSocial.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- DEMONSTRAÇÃO -->
+<section class="demo-s fade-up" id="demo" aria-label="Sessão completa de rescisão">
+  <div class="container">
+    <div class="sec-label">Sessão completa</div>
+    <h2 class="sec-title">Uma rescisão. Do início ao S-2299.</h2>
+
+    <div class="terminal" role="img" aria-label="Exemplo real de sessão de rescisão com o Especialista Inteligente">
+      <div class="term-bar">
+        <div class="dot dot-r" aria-hidden="true"></div>
+        <div class="dot dot-y" aria-hidden="true"></div>
+        <div class="dot dot-g" aria-hidden="true"></div>
+        <div class="term-title">Especialista de Rescisão · 01:58 de sessão</div>
+      </div>
+      <div class="term-body">
+<span class="t-cmd">&gt; INICIAR rescisão · João Oliveira · Analista Administrativo · Sem justa causa</span>
+<br>&nbsp;
+<br><span class="t-dim">─── Etapa 1 · Aviso prévio proporcional ───</span>
+<br><span class="t-ok">✔</span> Tempo de serviço: 18 meses <span class="t-ref">[Art. 487 CLT + Lei 12.506/11]</span>
+<br><span class="t-ok">✔</span> Aviso prévio: 30 + 3 dias proporcionais = 33 dias
+<br><span class="t-ok">✔</span> Valor do aviso prévio indenizado: R$ 3.575,00
+<br>&nbsp;
+<br><span class="t-dim">─── Etapa 2 · Verbas rescisórias ───</span>
+<br><span class="t-ok">✔</span> Saldo de salário (11 dias): R$ 1.191,67
+<br><span class="t-ok">✔</span> 13º proporcional (10/12): R$ 2.708,33
+<br><span class="t-ok">✔</span> Férias + 1/3 vencidas: R$ 4.333,33 <span class="t-ref">[Art. 130 CLT]</span>
+<br><span class="t-ok">✔</span> Férias + 1/3 proporcionais (10/12): R$ 2.891,67 <span class="t-ref">[Art. 7º CF/88]</span>
+<br><span class="t-sep">── Subtotal verbas: R$ 14.700,00 ──</span>
+<br>&nbsp;
+<br><span class="t-dim">─── Etapa 3 · FGTS e multa rescisória ───</span>
+<br><span class="t-ok">✔</span> Saldo FGTS: R$ 9.011,65 <span class="t-ref">[Lei 8.036/90]</span>
+<br><span class="t-ok">✔</span> Multa rescisória 40%: R$ 3.604,66 <span class="t-ref">[Art. 18 Lei 8.036/90]</span>
+<br><span class="t-ok">✔</span> Multa adicional: R$ 900,00 <span class="t-ref">[LC 110/01]</span>
+<br><span class="t-sep">── Total FGTS + multa: R$ 13.516,31 ──</span>
+<br>&nbsp;
+<br><span class="t-dim">─── Etapa 4 · eSocial S-2299 ───</span>
+<br><span class="t-ok">✔</span> Campos obrigatórios validados <span class="t-ref">[Manual eSocial v2.5]</span>
+<br><span class="t-ok">✔</span> Motivo: 02 — Sem justa causa — conforme <span class="t-ref">[Tab. 19 eSocial]</span>
+<br><span class="t-ok">✔</span> Prazo de transmissão: até 10 dias corridos — dentro do prazo <span class="t-ref">[Art. 32 Lei 8.213/91]</span>
+<br><span class="t-ok">✔</span> S-2299 validado e pronto para envio
+<br>&nbsp;
+<br><span class="t-sep">── Rescisão concluída · 01:58 de execução ──</span>
+<br><span class="cursor"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FERRAMENTAS -->
+<section class="tools-s fade-up" id="ferramentas" aria-label="Ferramentas incluídas no Especialista de Rescisão">
+  <div class="container">
+    <div class="sec-label">Três ferramentas incluídas.</div>
+    <div class="tools-grid">
+
+      <div class="tool-card">
+        <div class="tool-name">Calculadora de TRCT</div>
+        <div class="tool-desc">Saldo de salário, aviso prévio proporcional, 13º, férias + 1/3 e multa FGTS calculados com base legal. Nenhuma verba esquecida.</div>
+        <div class="tool-ref">CLT · Lei 8.036/90 · Lei 12.506/11 · LC 110/01</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-name">Calculadora de Aviso Prévio Proporcional</div>
+        <div class="tool-desc">Tempo de serviço × dias proporcionais (Lei 12.506/11). Aviso prévio trabalhado ou indenizado, com valor e prazo corretos.</div>
+        <div class="tool-ref">Art. 487 CLT · Lei 12.506/11</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-name">Validador eSocial S-2299</div>
+        <div class="tool-desc">Motivo de desligamento, campos obrigatórios e prazo de transmissão validados antes do envio. Manual eSocial v2.5 integrado.</div>
+        <div class="tool-ref">Manual eSocial v2.5 · Art. 32 Lei 8.213/91</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- O QUE ACOMPANHA -->
+<section class="inclui-s fade-up" id="inclui" aria-label="O que está incluído no Especialista de Rescisão">
+  <div class="container" style="max-width:700px">
+    <div class="sec-label">O que está incluído</div>
+    <div class="inclui-list">
+
+      <div class="inclui-item">
+        <div class="inclui-ck" aria-hidden="true">✔</div>
+        <div>
+          <div class="inclui-txt">Especialista em Rescisão</div>
+          <div class="inclui-sub">98+ soluções fundamentadas em lei</div>
+        </div>
+      </div>
+
+      <div class="inclui-item">
+        <div class="inclui-ck" aria-hidden="true">✔</div>
+        <div>
+          <div class="inclui-txt">Calculadora de TRCT</div>
+          <div class="inclui-sub">Todas as verbas — saldo, aviso, 13º, férias, FGTS</div>
+        </div>
+      </div>
+
+      <div class="inclui-item">
+        <div class="inclui-ck" aria-hidden="true">✔</div>
+        <div>
+          <div class="inclui-txt">Calculadora de Aviso Prévio Proporcional</div>
+          <div class="inclui-sub">Lei 12.506/11 — dias e valor calculados automaticamente</div>
+        </div>
+      </div>
+
+      <div class="inclui-item">
+        <div class="inclui-ck" aria-hidden="true">✔</div>
+        <div>
+          <div class="inclui-txt">Validador eSocial S-2299</div>
+          <div class="inclui-sub">Manual v2.5 integrado — pronto para envio</div>
+        </div>
+      </div>
+
+      <div class="inclui-item">
+        <div class="inclui-ck" aria-hidden="true">✔</div>
+        <div>
+          <div class="inclui-txt">Fundamentação legal em cada resposta</div>
+          <div class="inclui-sub">CLT, CF/88, Lei 8.036/90, LC 110/01, Manual eSocial</div>
+        </div>
+      </div>
+
+      <div class="inclui-item">
+        <div class="inclui-ck" aria-hidden="true">✔</div>
+        <div>
+          <div class="inclui-txt">Atualizações inclusas</div>
+          <div class="inclui-sub">Legislação e Manual eSocial sempre vigentes</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-s fade-up" aria-label="Perguntas frequentes sobre o Especialista de Rescisão">
+  <div class="container" style="max-width:640px">
+    <div class="sec-label">Perguntas frequentes</div>
+    <div id="faq-list"></div>
+  </div>
+</section>
+
+<!-- PREÇO -->
+<section class="price-s fade-up" id="preco" aria-label="Preço e aquisição do Especialista de Rescisão">
+  <div class="container" style="text-align:center">
+    <div class="sec-label" style="text-align:center">Acesso</div>
+    <div class="price-box">
+      <div class="p-badge">Especialista Individual</div>
+      <div class="p-name">Especialista em Rescisão</div>
+      <div class="p-caps">98+ soluções. Três ferramentas. Fundamentação legal. Atualizações inclusas.</div>
+      <div class="p-inc" aria-label="Ferramentas incluídas">
+        <div class="p-inc-row"><span class="p-inc-ok" aria-hidden="true">✔</span> Calculadora de TRCT</div>
+        <div class="p-inc-row"><span class="p-inc-ok" aria-hidden="true">✔</span> Calculadora de Aviso Prévio Proporcional</div>
+        <div class="p-inc-row"><span class="p-inc-ok" aria-hidden="true">✔</span> Validador eSocial S-2299</div>
+      </div>
+      <div class="p-de" id="p-de">R$ 187</div>
+      <div class="p-numrow">
+        <div class="p-num" id="p-num">R$ 97</div>
+        <div class="p-launch" id="p-launch">Preço de lançamento</div>
+      </div>
+      <div style="font-size:12px;color:rgba(136,153,187,.65);margin:.375rem 0 .125rem">De R$ 187 por apenas <strong style="color:var(--white);font-weight:500">R$ 97</strong> · <strong style="color:var(--teal-light);font-weight:500">Economize R$ 90</strong></div>
+      <div class="p-parcela" id="p-parcela">ou 12x de R$ 10,03 no cartão</div>
+      <div class="p-type">Pagamento único · sem assinatura · acesso imediato</div>
+      <button class="price-cta" onclick="window.open('https://pay.hotmart.com/D106863518R','_blank')">Adquirir Especialista agora →</button>
+      <div class="p-gua">✔ Garantia incondicional de 7 dias</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <h2 class="cf-title">Nunca mais errar<br>uma rescisão.</h2>
+  <p class="cf-sub">98+ soluções. Fundamentação legal em cada resposta. Garantia de 7 dias.</p>
+  <button class="cf-btn" onclick="window.open('https://pay.hotmart.com/D106863518R','_blank')">Adquirir Especialista — R$ 97 →</button>
+  <p class="cf-gua">✔ <strong>Garantia incondicional de 7 dias</strong> · Acesso imediato após confirmação</p>
+</section>
+
+<!-- RODAPÉ -->
+<footer role="contentinfo">
+  <p>IA para Departamento Pessoal</p>
+  <p style="margin-top:.25rem;color:rgba(136,153,187,.55)">Plataforma de Assistentes Inteligentes Especializados</p>
+  <div class="footer-divider" role="separator"></div>
+  <p>© 2026 IA para Departamento Pessoal · Todos os direitos reservados</p>
+  <p class="footer-platform">Especialista de Rescisão · Parte da Plataforma IA para Departamento Pessoal</p>
+  <p style="margin-top:.875rem;font-size:11px;color:rgba(136,153,187,.35)">A IA executa. O profissional valida.</p>
+</footer>
+
+<script>
+/* ════════════════════════════════════════════
+   CONFIGURAÇÃO — edite apenas este bloco
+   ════════════════════════════════════════════ */
+var CONFIG = {
+  PRECO:             'R$ 97',
+  PRECO_DE:          'R$ 187',
+  LABEL_LANCAMENTO:  '🔥 Oferta de Lançamento',
+  PARCELAMENTO:      'ou 12x de R$ 10,03 no cartão',
+  GARANTIA_DIAS:     '7',
+  NUM_SOLUCOES:      '98+',
+  NUM_FERRAMENTAS:   '3',
+  NOME_ESPECIALISTA: 'Especialista em Rescisão',
+  CONTATO:           'contato@iadepartamentopessoal.com.br',
+  ANO_COPYRIGHT:     '2026'
+};
+
+/* ════════════════════════════════════════════
+   INICIALIZAÇÃO — aplica CONFIG ao DOM
+   ════════════════════════════════════════════ */
+(function() {
+  function set(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; }
+  document.addEventListener('DOMContentLoaded', function() {
+    set('p-num',     CONFIG.PRECO);
+    set('p-de',      CONFIG.PRECO_DE);
+    set('p-launch',  CONFIG.LABEL_LANCAMENTO);
+    set('p-parcela', CONFIG.PARCELAMENTO);
+  });
+})();
+
+/* ════════════════════════════════════════════
+   LIVE SESSION — FASES DA RESCISÃO
+   ════════════════════════════════════════════ */
+var STAGES = [
+  {
+    phase: 'Etapa 1 · Verbas Rescisórias',
+    fields: [
+      { label: 'Funcionário',   value: 'João Oliveira' },
+      { label: 'Salário',       value: 'R$ 3.250,00' },
+      { label: 'Desligamento',  value: 'Sem justa causa' }
+    ],
+    proc: 'Calculando verbas rescisórias...',
+    results: [
+      { label: 'Aviso prévio proporcional', value: 'R$ 1.083,33', ref: 'Art. 487 CLT' },
+      { label: '13º proporcional',          value: 'R$ 2.708,33', ref: null },
+      { label: 'Férias + 1/3',              value: 'R$ 1.083,33', ref: 'Art. 7º CF/88' }
+    ],
+    total: 'R$ 12.483,66 total'
+  },
+  {
+    phase: 'Etapa 2 · FGTS e Multa',
+    fields: [
+      { label: 'Saldo FGTS',  value: 'R$ 9.011,65' },
+      { label: 'Tipo',        value: 'Sem justa causa' }
+    ],
+    proc: 'Calculando FGTS e multa rescisória...',
+    results: [
+      { label: 'Saldo FGTS',       value: 'R$ 9.011,65', ref: 'Lei 8.036/90' },
+      { label: 'Multa 40%',        value: 'R$ 3.604,66', ref: 'Art. 18 Lei 8.036' },
+      { label: 'Multa adicional',  value: 'R$ 900,00',   ref: 'LC 110/01' }
+    ],
+    total: 'R$ 13.516,31 FGTS total'
+  },
+  {
+    phase: 'Etapa 3 · eSocial S-2299',
+    fields: [
+      { label: 'Evento', value: 'S-2299 · Desligamento' },
+      { label: 'Motivo', value: '02 · Sem justa causa' }
+    ],
+    proc: 'Validando campos obrigatórios S-2299...',
+    results: [
+      { label: 'Campos obrigatórios',   value: 'Validados ✔',        ref: 'Manual v2.5' },
+      { label: 'Prazo de transmissão',  value: '10 dias corridos ✔',  ref: 'Art. 32 Lei 8.213' },
+      { label: 'Status do evento',      value: 'Pronto para envio',   ref: null }
+    ],
+    total: 'S-2299 aprovado'
+  }
+];
+
+/* ── Gestão de timers ── */
+var _timers = [];
+function _t(ms, fn) { var id = setTimeout(fn, ms); _timers.push(id); return id; }
+function _clearAll() { for (var i = 0; i < _timers.length; i++) clearTimeout(_timers[i]); _timers = []; }
+
+/* ── Constrói HTML de um estágio ── */
+function buildHTML(stage) {
+  var h = '<div class="ls-tag" id="ls-tag">' + CONFIG.NOME_ESPECIALISTA;
+  h += ' <span class="ls-phase">· ' + stage.phase + '</span></div>';
+  h += '<div class="ls-fields">';
+  stage.fields.forEach(function(f, i) {
+    h += '<div class="ls-field" id="lf-' + i + '">';
+    h += '<span class="ls-fl">' + f.label + '</span>';
+    h += '<span class="ls-fv" id="lfv-' + i + '"></span>';
+    h += '<span class="ls-cur" id="lfc-' + i + '" aria-hidden="true"></span>';
+    h += '<span class="ls-ck" id="lck-' + i + '" aria-hidden="true">✔</span>';
+    h += '</div>';
+  });
+  h += '</div>';
+  h += '<div class="ls-sep" id="ls-sep" role="separator"></div>';
+  h += '<div class="ls-prog" id="ls-prog">';
+  h += '<div class="ls-prog-txt">' + stage.proc + '</div>';
+  h += '<div class="ls-prog-track"><div class="ls-pfill" id="ls-pfill"></div></div></div>';
+  h += '<div class="ls-results">';
+  stage.results.forEach(function(r, i) {
+    h += '<div class="ls-rrow" id="lr-' + i + '">';
+    h += '<span class="ls-rok" aria-hidden="true">✔</span>';
+    h += '<span class="ls-rl">' + r.label + '</span>';
+    h += '<span class="ls-rv">' + r.value + '</span>';
+    if (r.ref) h += '<span class="ls-rref">[' + r.ref + ']</span>';
+    h += '</div>';
+  });
+  h += '</div>';
+  h += '<div class="ls-total" id="ls-total">';
+  h += '<span class="ls-tl">Resultado</span>';
+  h += '<span class="ls-tv">' + stage.total + '</span>';
+  h += '</div>';
+  return h;
+}
+
+/* ── Sequência de animação ── */
+var CHAR_MS = 48;
+var STAGGER  = 155;
+var PAUSE    = 1050;
+
+function animate(stage, onDone) {
+  var at = 0;
+  (function(t) { _t(t, function() {
+    var el = document.getElementById('ls-tag');
+    if (el) el.classList.add('show');
+  }); })(at += 80);
+  at += 360;
+
+  stage.fields.forEach(function(field, fi) {
+    (function(t, i) { _t(t, function() {
+      var el = document.getElementById('lf-' + i);
+      if (el) el.classList.add('show');
+      var cur = document.getElementById('lfc-' + i);
+      if (cur) cur.classList.add('blink');
+    }); })(at, fi);
+    at += 120;
+
+    for (var ci = 0; ci < field.value.length; ci++) {
+      (function(t, i, ch) { _t(t, function() {
+        var el = document.getElementById('lfv-' + i);
+        if (el) el.textContent += ch;
+      }); })(at, fi, field.value[ci]);
+      at += CHAR_MS;
+    }
+
+    (function(t, i) { _t(t, function() {
+      var cur = document.getElementById('lfc-' + i);
+      if (cur) { cur.classList.remove('blink'); cur.style.opacity = '0'; }
+      var ck = document.getElementById('lck-' + i);
+      if (ck) ck.classList.add('show');
+    }); })(at, fi);
+    at += 240;
+  });
+
+  (function(t) { _t(t, function() {
+    var el = document.getElementById('ls-sep');
+    if (el) el.classList.add('show');
+  }); })(at += 70);
+  at += 210;
+
+  (function(t) { _t(t, function() {
+    var prog = document.getElementById('ls-prog');
+    if (prog) prog.classList.add('show');
+    _t(50, function() {
+      var fill = document.getElementById('ls-pfill');
+      if (fill) fill.style.width = '100%';
+    });
+  }); })(at);
+  at += 720;
+
+  stage.results.forEach(function(r, ri) {
+    (function(t, i) { _t(t, function() {
+      var el = document.getElementById('lr-' + i);
+      if (el) el.classList.add('show');
+    }); })(at, ri);
+    at += STAGGER;
+  });
+
+  at += 60;
+  (function(t) { _t(t, function() {
+    var el = document.getElementById('ls-total');
+    if (el) el.classList.add('show');
+  }); })(at);
+  at += 300;
+
+  at += PAUSE;
+  (function(t) { _t(t, onDone); })(at);
+}
+
+/* ── Transição entre estágios ── */
+function transitionTo(nextIdx) {
+  _clearAll();
+  var body   = document.getElementById('live-body');
+  var status = document.getElementById('live-status');
+  if (!body) return;
+  body.style.transition = 'opacity .22s ease-in, transform .22s ease-in';
+  body.style.opacity    = '0';
+  body.style.transform  = 'translateY(-7px)';
+  _t(260, function() {
+    body.style.transition = 'none';
+    body.style.opacity    = '0';
+    body.style.transform  = 'translateY(7px)';
+    if (status) status.textContent = 'Sessão ativa · ' + STAGES[nextIdx].phase;
+    body.innerHTML = buildHTML(STAGES[nextIdx]);
+    _t(16, function() {
+      body.style.transition = 'opacity .22s ease-out, transform .22s ease-out';
+      body.style.opacity    = '1';
+      body.style.transform  = 'none';
+      _t(240, function() {
+        body.style.transition = '';
+        animate(STAGES[nextIdx], function() {
+          transitionTo((nextIdx + 1) % STAGES.length);
+        });
+      });
+    });
+  });
+}
+
+/* ── Iniciar live session ── */
+window.addEventListener('load', function() {
+  var body   = document.getElementById('live-body');
+  var status = document.getElementById('live-status');
+  if (!body) return;
+  if (status) status.textContent = 'Sessão ativa · ' + STAGES[0].phase;
+  body.innerHTML = buildHTML(STAGES[0]);
+  _t(350, function() {
+    animate(STAGES[0], function() { transitionTo(1); });
+  });
+});
+
+/* ════════════════════════════════════════════
+   FAQ — específico para rescisão
+   ════════════════════════════════════════════ */
+var FAQS = [
+  {
+    q: 'O aviso prévio proporcional é calculado automaticamente pela Lei 12.506/11?',
+    a: 'Sim. O Especialista aplica a Lei 12.506/11 automaticamente: 30 dias base + 3 dias por ano de serviço completo, até o limite de 60 dias (total máximo de 90 dias). Calcula o valor tanto para aviso indenizado quanto para aviso trabalhado, com a base legal correta em cada resposta.'
+  },
+  {
+    q: 'A multa FGTS inclui o adicional da LC 110/01?',
+    a: 'Sim. Além da multa rescisória de 40% sobre o saldo do FGTS prevista no Art. 18 da Lei 8.036/90, o Especialista calcula também a contribuição adicional de 10% sobre o saldo, conforme a LC 110/01, quando aplicável à modalidade de desligamento — garantindo que o cálculo seja completo e juridicamente correto.'
+  },
+  {
+    q: 'O Especialista cobre rescisão indireta e pedido de demissão?',
+    a: 'Sim. O Especialista cobre as principais modalidades de desligamento: dispensa sem justa causa, dispensa com justa causa, pedido de demissão, rescisão indireta (Art. 483 CLT), término de contrato por prazo determinado e acordo extrajudicial (Art. 484-A CLT). Cada modalidade tem suas verbas calculadas com a base legal específica.'
+  },
+  {
+    q: 'Ele valida o eSocial S-2299 antes do envio?',
+    a: 'Sim. O Especialista valida todos os campos obrigatórios do S-2299, confirma o código de motivo de desligamento conforme a Tabela 19 do eSocial e verifica se o prazo de transmissão (10 dias corridos após o desligamento, Art. 32 da Lei 8.213/91) está sendo cumprido — tudo com base no Manual eSocial v2.5.'
+  },
+  {
+    q: 'Como funciona a garantia de ' + CONFIG.GARANTIA_DIAS + ' dias?',
+    a: 'Se por qualquer motivo o Especialista não atender às suas necessidades, solicite o reembolso integral dentro de ' + CONFIG.GARANTIA_DIAS + ' dias corridos após a compra. O contato é feito pelo suporte em ' + CONFIG.CONTATO + ' — sem questionamentos, sem burocracia, com devolução integral.'
+  }
+];
+
+(function() {
+  var fl = document.getElementById('faq-list');
+  FAQS.forEach(function(f, i) {
+    var item = document.createElement('div');
+    item.className = 'faq-item';
+    item.setAttribute('role', 'group');
+    item.innerHTML =
+      '<button class="faq-q" aria-expanded="false" aria-controls="fa' + i + '">' +
+      '<span>' + f.q + '</span><div class="faq-icon" aria-hidden="true">+</div>' +
+      '</button>' +
+      '<div class="faq-wrap" id="fa' + i + '" role="region">' +
+      '<div class="faq-inner"><p class="faq-a">' + f.a + '</p></div></div>';
+    item.querySelector('.faq-q').addEventListener('click', function() {
+      var open = item.classList.toggle('open');
+      this.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    fl.appendChild(item);
+  });
+})();
+
+/* ════════════════════════════════════════════
+   NAV — scroll state
+   ════════════════════════════════════════════ */
+(function() {
+  var nav = document.getElementById('nav');
+  window.addEventListener('scroll', function() {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+})();
+
+/* ════════════════════════════════════════════
+   STICKY CTA — mobile only
+   ════════════════════════════════════════════ */
+(function() {
+  var sticky   = document.getElementById('sticky-cta');
+  var heroCTA  = document.getElementById('hero-cta');
+  var priceSec = document.getElementById('preco');
+  if (!sticky || !heroCTA || !priceSec) return;
+  var heroObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (!e.isIntersecting) sticky.classList.add('visible');
+      else sticky.classList.remove('visible');
+    });
+  });
+  var priceObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) sticky.classList.remove('visible');
+    });
+  });
+  heroObs.observe(heroCTA);
+  priceObs.observe(priceSec);
+})();
+
+/* ════════════════════════════════════════════
+   INTERSECTION OBSERVER — fade-up
+   ════════════════════════════════════════════ */
+(function() {
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('vis'); obs.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -50px 0px' });
+  document.querySelectorAll('.fade-up').forEach(function(el) { obs.observe(el); });
+})();
+</script>
+</body>
+</html>
